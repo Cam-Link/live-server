@@ -166,19 +166,23 @@ def play(request):
 
 @csrf_exempt
 def stop(request):
-  try:   
-
-    if request.method == "POST":
-      try:
+    try:
+        if request.method == "POST":
           
-        pass
+            uid = request.session.get('uid')
+            
+            #Delete User
+            Live.objects.filter(id=uid)[0].delete()
+            
+            #Delete folder based on User ID name
+            shutil.rmtree(os.path.join("/live/video", str(uid)))
+           
+            return JsonResponse({'msg': 'success'})
+           
+        
+        else:
+            return JsonResponse({'error': 'Method is not allowed.'}, status=405)
+    
+    except Exception as e:
+        return JsonResponse({'error': 'Unexpected error', 'details': str(e)}, status=500)
 
-      except Exception as e:
-        return JsonResponse({'msg':str(e)})
-
-    else:
-        return JsonResponse({'msg':"method not supported"})
-
-
-  except:
-    return JsonResponse({'msg':"Unexpected error"})
