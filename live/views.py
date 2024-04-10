@@ -95,8 +95,18 @@ def refresh(request):
 
     if request.method == "POST":
       try:
-          
-        pass
+
+        users = Link.objects.all()
+
+        live_hosts = []
+
+        for i in users:
+          live_hosts.insert(0,i.id)
+
+        if live_hosts == []:
+          return JsonResponse({'msg':'no new link'})
+
+        return JsonResponse({'msg':'success','live':live_hosts})
 
       except Exception as e:
         return JsonResponse({'msg':str(e)})
