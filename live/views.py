@@ -55,7 +55,25 @@ def stream(request):
     if request.method == "POST":
       try:
           
-        pass
+        chunk = request.FILES['chunk']
+
+        id = request.session.get("uid")
+
+        number = Live.objects.filter(id = id)[0].number
+
+        path1 = os.getcwd() + f"/live/videos/{id}/{number}.webm"
+
+        with open(path1,'ab') as video:
+                video.write(chunk.read())
+
+          
+
+        number = number + 1
+        number.save()
+
+
+
+        return JsonResponse({'msg':'success'})
 
       except Exception as e:
         return JsonResponse({'msg':str(e)})
