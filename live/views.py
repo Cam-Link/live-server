@@ -116,10 +116,10 @@ def stream(request):
 def refresh(request):
   try:   
 
-    if request.method == "POST":
+    if request.method == "GET":
       try:
 
-        users = Link.objects.all()
+        users = Live.objects.all()
 
         live_hosts = []
 
@@ -164,7 +164,7 @@ def refresh(request):
 def play(request):
   try:   
 
-    if request.method == "POST":
+    if request.method == "GET":
       try:
           
         data = json.loads(request.body)
