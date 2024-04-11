@@ -19,16 +19,15 @@ def link(request):
         data = json.loads(request.body)
         code = data['code']
         
-        user = Live.objects.create(number=0, code=code)
+        user = Live(code=code)
+        user.save()
 
-        request.session['user_id'] = user.id
+        request.session['uid'] = user.id
 
 
-        user_folder = os.path.join('videos', str(user.id))
-        os.makedirs(user_folder)
+        os.makedirs(f"live/videos/{user.id}")
 
         response = JsonResponse({'msg' : 'success'})
-        response.set_cookie('session_id', request.session.session_key)
 
         return response
       
