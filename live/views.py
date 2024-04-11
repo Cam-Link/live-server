@@ -4,9 +4,9 @@ from live.models import Live
 import shutil
 import os
 import json
-from django.http import JsonResponse, FileResponse, HttpResponse
+from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.sessions.backends.db import SessionStore
+
 
 
 # Create your views here.
@@ -16,30 +16,29 @@ def link(request):
   try:
     if request.method == 'POST':
       try:
-        code = request.POST.get('code')
-
+        data = json.loads(request.body)
+        code = data['code']
+        
         user = Live.objects.create(number=0, code=code)
 
-        session = SessionStore()
+        request.session['user_id'] = user.id
 
-        session['user_id'] = user.id
-        session.create()
 
         user_folder = os.path.join('videos', str(user.id))
         os.makedirs(user_folder)
 
         response = JsonResponse({'msg' : 'success'})
-        response.set_cookie('session_id', session.session_key)
+        response.set_cookie('session_id', request.session.session_key)
 
         return response
       
       except Exception as e:
         return JsonResponse({'msg':str(e)})
+    else:
+      return JsonResponse({'msg':'Method not supported'})
 
   except:
-    return HttpResponse('Method not allowed', status=405)
-
-
+    return JsonResponse({'msg':'Unexpected error'})
 
 
 
