@@ -4,10 +4,9 @@ from live.models import Live
 import shutil
 import os
 import json
+import socket
 from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
-
-
 
 # Create your views here.
 
@@ -64,16 +63,16 @@ def stream(request):
 
         id = request.session.get("uid")
 
-        number = Live.objects.filter(id = id)[0].number
+        number = Live.objects.filter(id = id)[0]
 
-        path1 = os.getcwd() + f"/live/videos/{id}/{number}.webm"
+        path1 = os.getcwd() + f"/live/videos/{id}/{number.number}.webm"
 
         with open(path1,'ab') as video:
-                video.write(chunk.read())
+          video.write(chunk.read())
 
           
 
-        number = number + 1
+        number.number = number.number + 1
         number.save()
 
 
@@ -180,7 +179,9 @@ def play(request):
         chunk = open(path, 'rb')
 
         return FileResponse(chunk, content_type='video/webm')
-
+        
+      except FileNotFoundError:
+        return JsonResponse({'msg':'again'})
       except Exception as e:
         return JsonResponse({'msg':str(e)})
 
@@ -230,4 +231,66 @@ def stop(request):
   
   except Exception as e:
     return JsonResponse({'error': 'Unexpected error', 'details': str(e)}, status=500)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@csrf_exempt
+def home(request):
+  try:
+    if request.method == 'GET':
+      try:
+
+        livelist = []
+
+        for i in Live.objects.all():
+          livelist.insert(0,i.id)
+
+        return render(request, 'home.html', {"live":livelist, "url":f"http://{socket.gethostbyname(socket.gethostname())}:8800/live/streaming/"})
+      
+      except Exception as e:
+        return JsonResponse({'msg':str(e)})
+    else:
+      return JsonResponse({'msg':'Method not supported'})
+
+  except:
+    return JsonResponse({'msg':'Unexpected error'})
+
+
+
+
+
+
+
+
+@csrf_exempt
+def streaming(request):
+  try:
+    if request.method == 'GET':
+      try:
+        return render(request, 'stream.html')
+      
+      except Exception as e:
+        return JsonResponse({'msg':str(e)})
+    else:
+      return JsonResponse({'msg':'Method not supported'})
+
+  except:
+    return JsonResponse({'msg':'Unexpected error'})
+
 

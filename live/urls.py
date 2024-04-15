@@ -9,4 +9,6 @@ urlpatterns = [
     path("refresh/", views.refresh),
     path("play/", views.play),
     path("stop/", views.stop),
+    path("home/", views.home),
+    path("streaming/", views.streaming),
 ]
